@@ -1,0 +1,6 @@
+__pycache__/
+.idea
+cert
+*.iml
+config/selvbetjening-*.ini
+config/maskinporten-*.ini
