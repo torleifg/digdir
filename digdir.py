@@ -10,12 +10,20 @@ from cryptography.hazmat.primitives import serialization
 import cryptography.hazmat.primitives.serialization.pkcs12
 
 
-class Selvbetjening:
-
+class Base:
     def __init__(self, config_file, config_section):
         config = configparser.ConfigParser()
         config.read(config_file)
         self.environment = config[config_section]
+
+        self.http = urllib3.PoolManager()
+        request = self.http.request('GET', self.environment['WellKnownEndpoint'])
+        self.well_known = json.loads(request.data.decode('utf-8'))
+
+
+class Selvbetjening(Base):
+    def __init__(self, config_file, config_section):
+        super().__init__(config_file, config_section)
 
         with open(self.environment['Keystore'], 'rb') as file:
             (
@@ -32,19 +40,12 @@ class Selvbetjening:
                 encoding=serialization.Encoding.DER
             )).decode('ascii')
 
-            self.public_key = certificate.public_key().public_bytes(
-                encoding=serialization.Encoding.PEM,
-                format=serialization.PublicFormat.PKCS1
-            ).decode('ascii')
-
-        self.http = urllib3.PoolManager()
-
     def create_jwt_grant(self):
         current_timestamp = datetime.utcnow()
 
         jwt_grant = jwt.encode(
             payload={
-                'aud': self.environment['Audience'],
+                'aud': self.well_known['issuer'],
                 'iss': self.environment['Client'],
                 'iat': current_timestamp,
                 'exp': current_timestamp + timedelta(seconds=120),
@@ -63,7 +64,7 @@ class Selvbetjening:
     def get_access_token(self, jwt_grant):
         request = self.http.request_encode_body(
             method='POST',
-            url=self.environment['TokenEndpoint'],
+            url=self.well_known['token_endpoint'],
             fields={
                 'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                 'assertion': jwt_grant
@@ -113,14 +114,9 @@ class Selvbetjening:
         return json.loads(request.data.decode('utf-8'))
 
 
-class Maskinporten:
-
+class Maskinporten(Base):
     def __init__(self, config_file, config_section):
-        config = configparser.ConfigParser()
-        config.read(config_file)
-        self.environment = config[config_section]
-
-        self.http = urllib3.PoolManager()
+        super().__init__(config_file, config_section)
 
     def create_jwt_grant(self, client_id, scope, kid, jwks):
         keyset = jwk.JWKSet.from_json(jwks)
@@ -130,17 +126,17 @@ class Maskinporten:
 
         jwt_grant = jwt.encode(
             payload={
-                "aud": self.environment['Audience'],
-                "iss": client_id,
-                "iat": current_timestamp,
-                "exp": current_timestamp + timedelta(seconds=120),
-                "jti": str(uuid.uuid4()),
-                "scope": scope
+                'aud': self.well_known['issuer'],
+                'iss': client_id,
+                'iat': current_timestamp,
+                'exp': current_timestamp + timedelta(seconds=120),
+                'jti': str(uuid.uuid4()),
+                'scope': scope
             },
             key=key.export_to_pem(private_key=True, password=None),
-            algorithm="RS256",
+            algorithm='RS256',
             headers={
-                "kid": kid
+                'kid': kid
             }
         )
 
@@ -149,7 +145,7 @@ class Maskinporten:
     def get_access_token(self, jwt_grant):
         request = self.http.request_encode_body(
             method='POST',
-            url=self.environment['TokenEndpoint'],
+            url=self.well_known['token_endpoint'],
             fields={
                 'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                 'assertion': jwt_grant
