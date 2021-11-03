@@ -7,7 +7,8 @@
 ### Prerequisites
 
 * Miniconda (https://docs.conda.io/en/latest/miniconda.html)
-* PKCS #12 file
+* Test and/or production Self-Service Client (https://docs.digdir.no/maskinporten_sjolvbetjening_api.html#selvbetjening-som-api-konsument)
+* Test and/or production PKCS #12 file (Buypass or Commfides)
 
 ### Installation
 
@@ -50,5 +51,12 @@ vim maskinporten-local.ini
 ```
 
 ## Usage
+
+### Selvbetjening
+
+```python
+import digdir, json
+```
+
 
 
