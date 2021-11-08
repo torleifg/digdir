@@ -117,8 +117,7 @@ class Maskinporten(Base):
     def __init__(self, config_file, config_section):
         super().__init__(config_file, config_section)
 
-    def create_jwt_grant(self, client_id, scope, kid, jwks):
-        keyset = jwk.JWKSet.from_json(jwks.export())
+    def create_jwt_grant(self, client_id, scope, kid, keyset):
         key = jwk.JWK.from_json(keyset.get_key(kid).export())
 
         current_timestamp = datetime.utcnow()
