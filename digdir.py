@@ -77,6 +77,7 @@ class Selvbetjening(Base):
     def create_client(self, access_token, client_name, scopes):
         body = {
             'integration_type': 'maskinporten',
+            'application_type': 'web',
             'client_name': client_name,
             'description': 'Ny integrasjon...',
             'token_endpoint_auth_method': 'private_key_jwt',
@@ -99,12 +100,10 @@ class Selvbetjening(Base):
         return json.loads(request.data.decode('utf-8'))
 
     def add_keyset_to_client(self, access_token, client_id, keyset):
-        encoded_keyset = json.dumps(keyset).encode('utf-8')
-
         request = self.http.request(
             method='POST',
             url=self.environment['ClientKeysEndpoint'].format(client=client_id),
-            body=encoded_keyset,
+            body=keyset.export(private_keys=False),
             headers={
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + access_token
@@ -119,7 +118,7 @@ class Maskinporten(Base):
         super().__init__(config_file, config_section)
 
     def create_jwt_grant(self, client_id, scope, kid, jwks):
-        keyset = jwk.JWKSet.from_json(jwks)
+        keyset = jwk.JWKSet.from_json(jwks.export())
         key = jwk.JWK.from_json(keyset.get_key(kid).export())
 
         current_timestamp = datetime.utcnow()
