@@ -170,6 +170,18 @@ class Maskinporten(Base):
 
         return json.loads(request.data.decode('utf-8'))
 
+    def get_freg_person(self, access_token, person_id):
+        request = self.http.request(
+            method='GET',
+            url=self.environment['FregEndpoint'].format(person=person_id),
+            headers={
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ' + access_token
+            }
+        )
+
+        return json.loads(request.data.decode('utf-8'))
+
 
 def create_jwks(kid):
     key = jwk.JWK.generate(
