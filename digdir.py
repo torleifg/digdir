@@ -99,6 +99,18 @@ class Selvbetjening(Base):
 
         return json.loads(request.data.decode('utf-8'))
 
+    def get_clients(self, access_token):
+        request = self.http.request(
+            method='GET',
+            url=self.environment['ClientEndpoint'],
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + access_token
+            }
+        )
+
+        return json.loads(request.data.decode('utf-8'))
+
     def add_keyset_to_client(self, access_token, client_id, keyset):
         request = self.http.request(
             method='POST',
@@ -117,7 +129,8 @@ class Maskinporten(Base):
     def __init__(self, config_file, config_section):
         super().__init__(config_file, config_section)
 
-    def create_jwt_grant(self, client_id, scope, kid, keyset):
+    def create_jwt_grant(self, client_id, scope, kid, jwks):
+        keyset = jwk.JWKSet.from_json(jwks)
         key = jwk.JWK.from_json(keyset.get_key(kid).export())
 
         current_timestamp = datetime.utcnow()
