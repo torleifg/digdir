@@ -72,7 +72,7 @@ class Selvbetjening(Base):
             encode_multipart=False,
         )
 
-        return json.loads(request.data.decode('utf-8'))
+        return json.loads(request.data.decode('utf-8'))['access_token']
 
     def create_client(self, access_token, client_name, scopes):
         body = {
@@ -87,9 +87,9 @@ class Selvbetjening(Base):
             'scopes': scopes.split()
         }
 
-        request = self.http.request(
+        return self.http.request(
             method='POST',
-            url=self.environment['ClientEndpoint'],
+            url=self.environment['ClientEndpoint'].format(client=''),
             body=json.dumps(body).encode('utf-8'),
             headers={
                 'Content-Type': 'application/json',
@@ -97,32 +97,46 @@ class Selvbetjening(Base):
             }
         )
 
-        return json.loads(request.data.decode('utf-8'))
-
     def get_clients(self, access_token):
-        request = self.http.request(
+        return self.http.request(
             method='GET',
-            url=self.environment['ClientEndpoint'],
+            url=self.environment['ClientEndpoint'].format(client=''),
             headers={
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + access_token
             }
         )
 
-        return json.loads(request.data.decode('utf-8'))
+    def get_client(self, access_token, client_id):
+        return self.http.request(
+            method='GET',
+            url=self.environment['ClientEndpoint'].format(client=client_id),
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + access_token
+            }
+        )
 
-    def add_keyset_to_client(self, access_token, client_id, keyset):
-        request = self.http.request(
+    def delete_client(self, access_token, client_id):
+        return self.http.request(
+            method='DELETE',
+            url=self.environment['ClientEndpoint'].format(client=client_id),
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + access_token
+            }
+        )
+
+    def add_keyset_to_client(self, access_token, client_id, jwks):
+        return self.http.request(
             method='POST',
-            url=self.environment['ClientKeysEndpoint'].format(client=client_id),
-            body=keyset.export(private_keys=False),
+            url=self.environment['ClientEndpoint'].format(client=client_id) + '/jwks',
+            body=jwk.JWKSet.from_json(jwks).export(private_keys=False),
             headers={
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + access_token
             }
         )
-
-        return json.loads(request.data.decode('utf-8'))
 
 
 class Maskinporten(Base):
@@ -164,14 +178,14 @@ class Maskinporten(Base):
             encode_multipart=False,
         )
 
-        return json.loads(request.data.decode('utf-8'))
+        return json.loads(request.data.decode('utf-8'))['access_token']
 
     def get_krr_person(self, access_token, person_id):
         body = {
             'personidentifikatorer': person_id.split()
         }
 
-        request = self.http.request(
+        return self.http.request(
             method='POST',
             url=self.environment['KrrEndpoint'],
             body=json.dumps(body).encode('utf-8'),
@@ -181,10 +195,8 @@ class Maskinporten(Base):
             }
         )
 
-        return json.loads(request.data.decode('utf-8'))
-
     def get_freg_person(self, access_token, person_id):
-        request = self.http.request(
+        return self.http.request(
             method='GET',
             url=self.environment['FregEndpoint'].format(person=person_id),
             headers={
@@ -192,8 +204,6 @@ class Maskinporten(Base):
                 'Authorization': 'Bearer ' + access_token
             }
         )
-
-        return json.loads(request.data.decode('utf-8'))
 
 
 def create_jwks(kid):
