@@ -5,6 +5,7 @@ import uuid
 import urllib3
 import configparser
 from datetime import datetime, timedelta
+from jwt import PyJWKClient
 from jwcrypto import jwk
 from cryptography.hazmat.primitives import serialization
 import cryptography.hazmat.primitives.serialization.pkcs12
@@ -17,8 +18,11 @@ class Base:
         self.environment = config[config_section]
 
         self.http = urllib3.PoolManager()
+
         request = self.http.request('GET', self.environment['WellKnownEndpoint'])
         self.well_known = json.loads(request.data.decode('utf-8'))
+
+        self.jwks_client = PyJWKClient(self.well_known['jwks_uri'])
 
 
 class Selvbetjening(Base):
@@ -72,7 +76,16 @@ class Selvbetjening(Base):
             encode_multipart=False,
         )
 
-        return json.loads(request.data.decode('utf-8'))['access_token']
+        token = json.loads(request.data.decode('utf-8'))['access_token']
+        signing_key = self.jwks_client.get_signing_key_from_jwt(token)
+        jwt.decode(
+            jwt=token,
+            key=signing_key.key,
+            algorithms=["RS256"],
+            issuer=self.well_known['issuer']
+        )
+
+        return token
 
     def create_client(self, access_token, client_name, scopes):
         body = {
@@ -178,7 +191,16 @@ class Maskinporten(Base):
             encode_multipart=False,
         )
 
-        return json.loads(request.data.decode('utf-8'))['access_token']
+        token = json.loads(request.data.decode('utf-8'))['access_token']
+        signing_key = self.jwks_client.get_signing_key_from_jwt(token)
+        jwt.decode(
+            jwt=token,
+            key=signing_key.key,
+            algorithms=["RS256"],
+            issuer=self.well_known['issuer']
+        )
+
+        return token
 
     def get_krr_person(self, access_token, person_id):
         body = {
