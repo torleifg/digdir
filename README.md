@@ -56,7 +56,41 @@ vim maskinporten-local.ini
 
 ```python
 import digdir, json
+
+s = digdir.Selvbetjening('config/selvbetjening-local.ini', 'VER2')
+
+jwt_grant = s.create_jwt_grant()
+access_token = s.get_access_token(jwt_grant)
+
+client = s.create_client(access_token, 'client_name', 'scope1 scope2')
+
+client_id = json.loads(client.data.decode('utf-8'))['client_id']
+jwks = digdir.create_jwks('kid')
+
+f = open('keyset.jwks', 'w')
+f.write(jwks.export())
+f.close()
+
+response = s.add_keyset_to_client(access_token, client_id, jwks.export(private_keys=False))
+
+...
 ```
 
+### Maskinporten
 
+```python
+import digdir, json
 
+m = digdir.Maskinporten('config/maskinporten-local.ini', 'VER2')
+
+f = open('keyset.jwks')
+jwks = f.read()
+f.close()
+
+jwt_grant = m.create_jwt_grant('client_id', 'scope', 'kid', jwks)
+access_token = m.get_access_token(jwt_grant)
+
+person = m.get_krr_person(access_token, 'person_id')
+
+...
+```
