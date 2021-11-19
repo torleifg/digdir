@@ -71,7 +71,7 @@ f = open('keyset.jwks', 'w')
 f.write(jwks.export())
 f.close()
 
-response = s.add_keyset_to_client(access_token, client_id, jwks.export(private_keys=False))
+response = s.add_keyset_to_client(access_token, client_id, jwks.export())
 
 ...
 ```
