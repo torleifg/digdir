@@ -140,6 +140,29 @@ class Selvbetjening(Base):
             }
         )
 
+    def update_client(self, access_token, client_name, client_id, scopes):
+            body = {
+                'integration_type': 'maskinporten',
+                            'application_type': 'web',
+                            'client_name': client_name,
+                            'description': 'Ny integrasjon...',
+                            'token_endpoint_auth_method': 'private_key_jwt',
+                            'grant_types': [
+                                'urn:ietf:params:oauth:grant-type:jwt-bearer'
+                            ],
+                            'scopes': scopes.split()
+            }
+
+            return self.http.request(
+                method='PUT',
+                url=self.environment['ClientEndpoint'].format(client=client_id),
+                body=json.dumps(body).encode('utf-8'),
+                headers={
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + access_token
+                }
+    )
+
     def add_keyset_to_client(self, access_token, client_id, jwks):
         return self.http.request(
             method='POST',
