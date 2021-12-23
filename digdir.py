@@ -152,7 +152,6 @@ class Selvbetjening(Base):
                             ],
                             'scopes': scopes.split()
             }
-
             return self.http.request(
                 method='PUT',
                 url=self.environment['ClientEndpoint'].format(client=client_id),
@@ -161,7 +160,7 @@ class Selvbetjening(Base):
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + access_token
                 }
-    )
+            )
 
     def add_keyset_to_client(self, access_token, client_id, jwks):
         return self.http.request(
