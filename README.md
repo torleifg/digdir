@@ -2,7 +2,25 @@
 
 ## Getting Started
 
-Install Miniconda (https://docs.conda.io/en/latest/miniconda.html)
+### Set Up the Virtual Environment
+
+In the root folder of the project. Start by creating a virtual environment for managing dependencies:
+
+```bash
+python -m venv env
+```
+
+Activate the virtual environment:
+
+```bash
+source env/bin/activate
+```
+
+Install requirements:
+
+```bash
+pip install -r requirements.txt
+```
 
 ### Prerequisites (Selvbetjening)
 
@@ -13,30 +31,6 @@ Install Miniconda (https://docs.conda.io/en/latest/miniconda.html)
 
 * Test and/or production Maskinporten Client
 * Test and/or production JWKS file
-
-### Installation
-
-1. Clone the repo
-```sh
-git clone https://github.com/torleifg/digdir.git
-```
-
-2. Add channel
-```sh
-conda config --add channels conda-forge
-conda config --set channel_priority strict
-```
-
-3. Create environment
-```sh
-conda create --name <environment> jwcrypto pyjwt urllib3
-```
-
-4. Activate environment
-```sh
-conda activate <environment>
-```
-
 
 
 ## Usage
@@ -49,19 +43,11 @@ mkdir /cert
 cp <path>/*.p12 cert/*.p12
 ```
 
-Modify configuration
-```sh
-cd config
-
-cp selvbetjening.ini selvbetjening-local.ini
-vim selvbetjening-local.ini
-```
-
 Use
 ```python
 import digdir, json, uuid
 
-s = digdir.Selvbetjening('config/selvbetjening-local.ini', 'VER2')
+s = digdir.Selvbetjening('config/selvbetjening.ini', 'TEST')
 
 jwt_grant = s.create_jwt_grant()
 access_token = s.get_access_token(jwt_grant)
@@ -81,19 +67,11 @@ response = s.add_keyset_to_client(access_token, client_id, jwks.export())
 
 ### Maskinporten
 
-Modify configuration
-```sh
-cd config
-
-cp maskinporten.ini maskinporten-local.ini
-vim maskinporten-local.ini
-```
-
 Use
 ```python
 import digdir, json
 
-m = digdir.Maskinporten('config/maskinporten-local.ini', 'VER2')
+m = digdir.Maskinporten('config/maskinporten.ini', 'TEST')
 
 f = open('cert/keyset.jwks')
 jwks = f.read()
