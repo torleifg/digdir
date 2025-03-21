@@ -24,16 +24,21 @@ pip install -r requirements.txt
 
 ### Selvbetjening
 
+https://docs.digdir.no/docs/Maskinporten/maskinporten_sjolvbetjening_api
+
 #### Prerequisites
 
-* Test and/or production Self-Service Client (https://docs.digdir.no/maskinporten_sjolvbetjening_api.html#selvbetjening-som-api-konsument)
+* Test and/or production Self-Service Client
 * Test and/or production PKCS #12 file (Buypass or Commfides)
 
+
+#### Add certificate
 ```sh
 mkdir /cert
 cp <path>/*.p12 cert/*.p12
 ```
 
+#### Example
 ```python
 import digdir, json, uuid
 
@@ -57,11 +62,14 @@ response = s.add_keyset_to_client(access_token, client_id, jwks.export())
 
 ### Maskinporten
 
+https://docs.digdir.no/docs/Maskinporten/maskinporten_guide_apikonsument
+
 #### Prerequisites
 
 * Test and/or production Maskinporten Client
 * Test and/or production JWKS file
 
+#### Example
 ```python
 import digdir, json
 
