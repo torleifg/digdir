@@ -1,8 +1,6 @@
-# Digdir
+# Getting Started
 
-## Getting Started
-
-### Set Up the Virtual Environment
+## Set Up the Virtual Environment
 
 In the root folder of the project. Start by creating a virtual environment for managing dependencies:
 
@@ -22,28 +20,20 @@ Install requirements:
 pip install -r requirements.txt
 ```
 
-### Prerequisites (Selvbetjening)
-
-* Test and/or production Self-Service Client (https://docs.digdir.no/maskinporten_sjolvbetjening_api.html#selvbetjening-som-api-konsument)
-* Test and/or production PKCS #12 file (Buypass or Commfides)
-
-### Prerequisites (Maskinporten)
-
-* Test and/or production Maskinporten Client
-* Test and/or production JWKS file
-
-
 ## Usage
 
 ### Selvbetjening
 
-Add PKCS #12 file
+#### Prerequisites
+
+* Test and/or production Self-Service Client (https://docs.digdir.no/maskinporten_sjolvbetjening_api.html#selvbetjening-som-api-konsument)
+* Test and/or production PKCS #12 file (Buypass or Commfides)
+
 ```sh
 mkdir /cert
 cp <path>/*.p12 cert/*.p12
 ```
 
-Use
 ```python
 import digdir, json, uuid
 
@@ -67,7 +57,11 @@ response = s.add_keyset_to_client(access_token, client_id, jwks.export())
 
 ### Maskinporten
 
-Use
+#### Prerequisites
+
+* Test and/or production Maskinporten Client
+* Test and/or production JWKS file
+
 ```python
 import digdir, json
 
