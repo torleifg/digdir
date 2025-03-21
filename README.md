@@ -31,14 +31,15 @@ https://docs.digdir.no/docs/Maskinporten/maskinporten_sjolvbetjening_api
 * Test and/or production Self-Service Client
 * Test and/or production PKCS #12 file (Buypass or Commfides)
 
-
 #### Add certificate
+
 ```sh
 mkdir /cert
 cp <path>/*.p12 cert/*.p12
 ```
 
 #### Example
+
 ```python
 import digdir, json, uuid
 
@@ -70,6 +71,7 @@ https://docs.digdir.no/docs/Maskinporten/maskinporten_guide_apikonsument
 * Test and/or production JWKS file
 
 #### Example
+
 ```python
 import digdir, json
 
@@ -83,4 +85,7 @@ jwt_grant = m.create_jwt_grant('client_id', 'scope', 'kid', jwks)
 access_token = m.get_access_token(jwt_grant)
 
 person = m.get_krr_person(access_token, 'person_id')
+
+data = json.loads(person.data.decode('utf-8'))
+print(data)
 ```
