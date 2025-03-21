@@ -41,7 +41,7 @@ cp <path>/*.p12 cert/*.p12
 #### Example
 
 ```python
-import digdir, json, uuid
+import maskinporten, json, uuid
 
 s = digdir.Selvbetjening('config/selvbetjening.ini', 'TEST')
 
@@ -73,7 +73,7 @@ https://docs.digdir.no/docs/Maskinporten/maskinporten_guide_apikonsument
 #### Example
 
 ```python
-import digdir, json
+import maskinporten, json
 
 m = digdir.Maskinporten('config/maskinporten.ini', 'TEST')
 
